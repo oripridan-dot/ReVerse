@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ReVerse Communicator</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: #1a1a1a; color: #f0f0f0; margin: 0; padding: 2rem; }
+        #container { max-width: 900px; margin: auto; }
+        h1 { color: #00aaff; }
+        textarea, #log { width: 98%; background-color: #2b2b2b; color: #f0f0f0; border: 1px solid #555; padding: 10px; font-family: monospace; }
+        textarea { height: 100px; resize: vertical; }
+        #log { min-height: 300px; white-space: pre-wrap; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>ReVerse Engine <> ReVerse Communicator</h1>
+        <textarea id="dreamInput" placeholder="Declare the endstate of your dream..."></textarea>
+        <div id="log">System Standby...</div>
+    </div>
+    <script>
+        const dreamInput = document.getElementById('dreamInput');
+        const log = document.getElementById('log');
+        const ws = new WebSocket(`ws://${window.location.host}/ws`);
+
+        ws.onopen = () => { log.textContent = '✅ Connection established. The Crucible is active.'; };
+        ws.onmessage = (event) => { log.textContent += `\n<- ${event.data}`; };
+        ws.onclose = () => { log.textContent += '\n🛑 Connection lost.'; };
+
+        dreamInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const dream = dreamInput.value;
+                log.textContent += `\n-> Manifesting: ${dream}`;
+                ws.send(dream);
+                dreamInput.value = '';
+            }
+        });
+    </script>
+</body>
+</html>
+
